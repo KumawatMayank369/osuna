@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LoanIQ — Instant Approval Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0b0f1a;
+      --surface:  #131929;
+      --card:     #1a2235;
+      --border:   #252f44;
+      --accent:   #4f8ef7;
+      --accent2:  #7c5cfc;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --text:     #e2e8f0;
+      --muted:    #8896a8;
+      --label:    #a0aec0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .logo-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    header span { color: var(--accent); }
+    .badge {
+      margin-left: auto;
+      background: rgba(79,142,247,.12);
+      color: var(--accent);
+      border: 1px solid rgba(79,142,247,.3);
+      padding: .25rem .75rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2rem;
+    }
+    .hero h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -.03em;
+      background: linear-gradient(135deg, #e2e8f0 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--muted);
+      margin-top: .75rem;
+      font-size: .95rem;
+      max-width: 420px;
+      margin-inline: auto;
+    }
+
+    /* ── Main layout ── */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    /* ── Form card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .field { display: flex; flex-direction: column; gap: .4rem; }
+    label {
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--label);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    input[type="number"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .65rem .9rem;
+      color: var(--text);
+      font-size: .92rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button { display: none; }
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,142,247,.15);
+    }
+    .hint {
+      font-size: .7rem;
+      color: var(--muted);
+      margin-top: .1rem;
+    }
+
+    /* ── Submit button ── */
+    .btn-wrap {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: .85rem 2.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: .01em;
+    }
+    button:hover  { opacity: .9; }
+    button:active { transform: scale(.97); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Result ── */
+    #result {
+      margin-top: 1.5rem;
+      display: none;
+    }
+    .result-card {
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border: 1px solid;
+      animation: slideUp .3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .result-card.approved {
+      background: rgba(34,197,94,.08);
+      border-color: rgba(34,197,94,.3);
+    }
+    .result-card.rejected {
+      background: rgba(239,68,68,.08);
+      border-color: rgba(239,68,68,.3);
+    }
+    .result-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .result-card.approved .result-label { color: var(--green); }
+    .result-card.rejected .result-label { color: var(--red); }
+    .result-sub { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+
+    .confidence-wrap { text-align: right; }
+    .confidence-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .result-card.approved .confidence-num { color: var(--green); }
+    .result-card.rejected .confidence-num { color: var(--red); }
+    .confidence-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── Error ── */
+    .error-box {
+      margin-top: 1.5rem;
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      color: var(--red);
+      font-size: .88rem;
+      display: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: .78rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-dot"></div>
+  <h1>Loan<span>IQ</span></h1>
+  <div class="badge">ML Powered</div>
+</header>
+
+<div class="hero">
+  <h2>Instant Loan Approval<br/>Prediction</h2>
+  <p>Fill in your financial profile below and get an AI-powered decision in seconds.</p>
+</div>
+
+<main>
+  <!-- ── Server URL Config ── -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-title">🔗 API Server URL</div>
+    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="serverUrl"
+        placeholder="https://abc123.ngrok-free.app"
+        style="flex:1;min-width:260px;background:var(--surface);border:1px solid var(--border);
+               border-radius:10px;padding:.65rem .9rem;color:var(--text);font-size:.92rem;
+               font-family:'Inter',sans-serif;outline:none;"
+        oninput="saveUrl(this.value)"
+      />
+      <span style="color:var(--muted);font-size:.8rem;">Paste your ngrok URL here</span>
+    </div>
+    <p style="color:var(--muted);font-size:.75rem;margin-top:.6rem;">
+      Run: <code style="background:var(--surface);padding:.15rem .4rem;border-radius:5px;color:var(--accent);">ngrok http 8000</code>
+      → copy the <b>Forwarding</b> URL → paste above
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Applicant Details</div>
+    <div class="grid">
+
+      <div class="field">
+        <label>Age</label>
+        <input type="number" id="age" placeholder="e.g. 30" min="18" max="65"/>
+        <span class="hint">18 – 65 years</span>
+      </div>
+
+      <div class="field">
+        <label>Annual Income ($)</label>
+        <input type="number" id="income" placeholder="e.g. 60000"/>
+        <span class="hint">Before tax</span>
+      </div>
+
+      <div class="field">
+        <label>Credit Score</label>
+        <input type="number" id="credit_score" placeholder="e.g. 720" min="300" max="850"/>
+        <span class="hint">300 – 850</span>
+      </div>
+
+      <div class="field">
+        <label>Loan Amount ($)</label>
+        <input type="number" id="loan_amount" placeholder="e.g. 15000"/>
+        <span class="hint">Amount requested</span>
+      </div>
+
+      <div class="field">
+        <label>Years Employed</label>
+        <input type="number" id="employment_years" placeholder="e.g. 5" min="0"/>
+        <span class="hint">At current job</span>
+      </div>
+
+      <div class="field">
+        <label>No. of Accounts</label>
+        <input type="number" id="num_accounts" placeholder="e.g. 3" min="1"/>
+        <span class="hint">Bank / credit accounts</span>
+      </div>
+
+      <div class="field">
+        <label>Existing Loans</label>
+        <input type="number" id="num_loans" placeholder="e.g. 1" min="0"/>
+        <span class="hint">Active loans</span>
+      </div>
+
+      <div class="field">
+        <label>Monthly Expenses ($)</label>
+        <input type="number" id="monthly_expenses" placeholder="e.g. 1500"/>
+        <span class="hint">Avg monthly spend</span>
+      </div>
+
+      <div class="field">
+        <label>Savings ($)</label>
+        <input type="number" id="savings" placeholder="e.g. 20000"/>
+        <span class="hint">Total saved</span>
+      </div>
+
+      <div class="field">
+        <label>Debt Ratio</label>
+        <input type="number" id="debt_ratio" placeholder="e.g. 0.35" min="0" max="1" step="0.01"/>
+        <span class="hint">0.0 (none) → 1.0 (high)</span>
+      </div>
+
+    </div>
+
+    <div class="btn-wrap">
+      <button id="submitBtn" onclick="predict()">Check Loan Eligibility →</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="result-card" id="resultCard">
+      <div>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-sub" id="resultSub"></div>
+      </div>
+      <div class="confidence-wrap">
+        <div class="confidence-num" id="confidenceNum"></div>
+        <div class="confidence-label">Confidence</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+</main>
+
+<footer>LoanIQ · Powered by Random Forest &amp; FastAPI · For demo purposes only</footer>
+
+<script>
+  function saveUrl(val) {
+    try { sessionStorage.setItem("ngrok_url", val); } catch(e) {}
+  }
+
+  // Restore URL if saved
+  try {
+    const saved = sessionStorage.getItem("ngrok_url");
+    if (saved) document.getElementById("serverUrl").value = saved;
+  } catch(e) {}
+
+  async function predict() {
+    const ids = ["age","income","credit_score","loan_amount","employment_years",
+                 "num_accounts","num_loans","monthly_expenses","savings","debt_ratio"];
+    const btn = document.getElementById("submitBtn");
+    const errBox = document.getElementById("errorBox");
+
+    errBox.style.display = "none";
+    document.getElementById("result").style.display = "none";
+
+    // Get server URL
+    const serverUrl = (document.getElementById("serverUrl").value || "http://localhost:8000").replace(/\/$/, "");
+
+    // Validate
+    for (const id of ids) {
+      const val = document.getElementById(id).value.trim();
+      if (val === "" || isNaN(val)) {
+        errBox.textContent = `Please fill in all fields. Missing: ${id.replace(/_/g," ")}`;
+        errBox.style.display = "block";
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Analysing…";
+
+    const payload = {};
+    ids.forEach(id => payload[id] = parseFloat(document.getElementById(id).value));
+
+    try {
+      const res = await fetch(`${serverUrl}/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+
+      const card   = document.getElementById("resultCard");
+      const label  = document.getElementById("resultLabel");
+      const sub    = document.getElementById("resultSub");
+      const conf   = document.getElementById("confidenceNum");
+
+      card.className = "result-card " + (data.approved ? "approved" : "rejected");
+      label.textContent = data.result;
+      sub.textContent = data.approved
+        ? "Based on your profile, your loan application is likely to be approved."
+        : "Your profile does not meet the current eligibility criteria.";
+      conf.textContent = data.confidence + "%";
+
+      document.getElementById("result").style.display = "block";
+
+    } catch (err) {
+      errBox.textContent = `Could not reach the server at ${serverUrl}. Make sure FastAPI is running and your ngrok URL is correct.`;
+      errBox.style.display = "block";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Check Loan Eligibility →";
+    }
+  }
+</script>
+</body>
+</html>
